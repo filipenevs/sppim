@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/src/__pycache__": true,
+    "**/.gitkeep": true,
+    ".vscode": true
+  },
+  "editor.tabSize": 2
+}

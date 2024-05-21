@@ -1,0 +1,6 @@
+outDir
+__pycache__
+images
+parameters/*
+!parameters/.gitkeep
+config.txt
