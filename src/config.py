@@ -12,14 +12,6 @@ DEFAULT_DENOISE_CONFIG_PARAMETERS = {
   'NUM_THREADS': '',
 }
 
-DEFAULT_DENOISE_ATLAS_CONFIG_PARAMETERS = {
-  'ENABLED': 'False',
-  'PATCH_RADIUS': '',
-  'BLOCK_RADIUS': '',
-  'RICIAN': '',
-  'NUM_THREADS': '',
-}
-
 DEFAULT_BIAS_FIELD_CONFIG_PARAMETERS = {
   'ENABLED': 'True',
   'SHRINK_FACTOR': '2',
@@ -34,7 +26,6 @@ def create_default_config(config_path):
   config = configparser.ConfigParser()
   config['GENERAL'] = DEFAULT_GENERAL_CONFIG_PARAMETERS
   config['DENOISE'] = DEFAULT_DENOISE_CONFIG_PARAMETERS
-  config['DENOISE_ATLAS'] = DEFAULT_DENOISE_ATLAS_CONFIG_PARAMETERS
   config['BIAS_FIELD_REMOVAL'] = DEFAULT_BIAS_FIELD_CONFIG_PARAMETERS
 
   with open(config_path, 'w') as configfile:
