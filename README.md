@@ -9,10 +9,18 @@ This project provides a pre-processing pipeline for MRI images. The pipeline inc
 ## Table of Contents
 
 - Prerequisites :construction:	
-- Installation :construction:	
+- [Installation](#instalation)
 - [Configuration](#configuration)
   - [Config Parameters](#config-parameters)
 - [Usage](#usage)
+
+## Instalation
+
+To install the required libraries, run:
+
+```
+$ pip3 install -r requirements.txt
+```
 
 ## Configuration
 
