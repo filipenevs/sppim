@@ -2,8 +2,6 @@ import nibabel as nib
 import SimpleITK as sitk
 import itk
 
-IMAGE_SUFFIX = '.nii'
-
 # NIB
 def load_nib_image(file_path):
   img = nib.load(file_path)
