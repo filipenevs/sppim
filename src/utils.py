@@ -22,3 +22,11 @@ def log(text, color=None, clearLine=False):
 
 def normalize_dir_path(directory):
   return os.path.normpath(directory)
+
+def list_files_in_directory(directory):
+  files = []
+  for filename in os.listdir(directory):
+    file_path = os.path.join(directory, filename)
+    if os.path.isfile(file_path): 
+      files.append(file_path)
+  return files
