@@ -1,7 +1,7 @@
 import configparser
 
 DEFAULT_GENERAL_CONFIG_PARAMETERS = {
-  'EXTENSIONS': ['.nii', '.nii.gz']
+  'EXTENSIONS': '.nii, .nii.gz'
 }
 
 DEFAULT_DENOISE_CONFIG_PARAMETERS = {
@@ -48,4 +48,6 @@ class ConfigManager:
       return self.config.getint(section, option)
     elif isinstance(default, float):
       return self.config.getfloat(section, option)
+    elif isinstance(default, list):
+      return [item.strip() for item in value.split(',')]
     return value
