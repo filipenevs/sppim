@@ -19,7 +19,7 @@ def remove_bias_field(sitk_image, sitk_image_mask, config_manager):
   log_bias_field = bias_corrector.GetLogBiasFieldAsImage(sitk_image)
   corrected_image_full_resolution = sitk_image / sitk.Exp( log_bias_field )
 
-  corrected_image_full_resolution = sitk.Cast(corrected_image_full_resolution, sitk.sitkUInt16)
+  corrected_image_full_resolution = sitk.Cast(corrected_image_full_resolution, sitk.sitkFloat32)
 
   processing_time = time() - start_time
 
