@@ -3,7 +3,8 @@
     "**/__pycache__": true,
     "**/src/__pycache__": true,
     "**/.gitkeep": true,
-    ".vscode": true
+    ".vscode": true,
+    ".gitignore": true
   },
   "editor.tabSize": 2
 }
