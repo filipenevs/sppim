@@ -5,9 +5,9 @@ from time import time
 import SimpleITK as sitk
 import itk
 
-from src.config import read_config, create_default_config, get_config_value
+from src.config import ConfigManager
 from src.skull_stripping import skull_stripping
-from src.denoise import denoise_image
+# from src.denoise import denoise_image
 from src.image_io import load_nib_image, save_nib_image, save_sitk_image, load_sitk_image, save_nib_image_to_tempfile, save_sitk_image_to_tempfile, load_itk_image, save_itk_image, save_itk_image_to_tempfile, cleanup_tempfile
 from src.bias_field import remove_bias_field
 from src.utils import log, bcolors, normalize_dir_path
@@ -16,10 +16,14 @@ from src.orientation import sync_images_orientation
 def main(mri_path, output_dir, config_path):
   # Config
   log("> Loading Config")
-  config = read_config(config_path)
+  config_manager = ConfigManager(config_path)
+  # config = read_config(config_path)
   log("> Config Loaded", bcolors.OKGREEN, True)
 
-  save_stepwise = get_config_value(config, 'GENERAL', 'SAVE_INTERMEDIATE_STEPS', default=False)
+  save_stepwise = config_manager.get_config_value('GENERAL', 'SAVE_INTERMEDIATE_STEPS', default=False)
+  print(save_stepwise)
+  return
+
 
   # Loading
   log("> Loading Images")
@@ -44,7 +48,7 @@ def main(mri_path, output_dir, config_path):
   cleanup_tempfile(temp_path_original)
 
   # Denoising (NIB)
-  original_denoising_enabled = get_config_value(config, 'DENOISE', 'ENABLED', default=True)
+  original_denoising_enabled = config_manager.get_config_value('DENOISE', 'ENABLED', default=True)
   if original_denoising_enabled:
     log("> Running Original Image Denoising")
     original_work_image, time = denoise_image(original_work_image, original_mask)
@@ -54,7 +58,7 @@ def main(mri_path, output_dir, config_path):
     save_nib_image(original_work_image, f'./{output_dir}/3.ORIGINAL_DENOISED.nii')
 
   # Bias field removal (SITK)
-  bias_field_removal_enabled = get_config_value(config, 'BIAS_FIELD_REMOVAL', 'ENABLED', default=True)
+  bias_field_removal_enabled = config_manager.get_config_value('BIAS_FIELD_REMOVAL', 'ENABLED', default=True)
   if bias_field_removal_enabled:
     log("> Running Bias Field Removal")
     temp_path_original = save_nib_image_to_tempfile(original_work_image)
@@ -78,8 +82,9 @@ if __name__ == "__main__":
   config_path = os.path.join(script_dir, "config.txt")
 
   if len(sys.argv) == 2 and sys.argv[1] == "--generate-config":
-    create_default_config(config_path)
-    print(f"Default configuration file created at {config_path}. Please edit it with appropriate values.")
+    config_manager = ConfigManager(config_path)
+    config_manager.create_default_config()
+    print(f"Default configuration file created at {config_path}.\nPlease edit it with appropriate values.")
     sys.exit(0)
 
   if len(sys.argv) != 3:

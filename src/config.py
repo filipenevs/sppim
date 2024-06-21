@@ -17,29 +17,35 @@ DEFAULT_BIAS_FIELD_CONFIG_PARAMETERS = {
   'SHRINK_FACTOR': '2',
 }
 
-def read_config(config_file):
-  config = configparser.ConfigParser()
-  config.read(config_file)
-  return config
+class ConfigManager:
+  def __init__(self, config_file):
+    self.config_file = config_file
+    self.config = configparser.ConfigParser()
+    self.read_config()
 
-def create_default_config(config_path):
-  config = configparser.ConfigParser()
-  config['GENERAL'] = DEFAULT_GENERAL_CONFIG_PARAMETERS
-  config['DENOISE'] = DEFAULT_DENOISE_CONFIG_PARAMETERS
-  config['BIAS_FIELD_REMOVAL'] = DEFAULT_BIAS_FIELD_CONFIG_PARAMETERS
+  def read_config(self):
+    self.config.read(self.config_file)
 
-  with open(config_path, 'w') as configfile:
-    config.write(configfile)
+  def create_default_config(self):
+    self.config['GENERAL'] = DEFAULT_GENERAL_CONFIG_PARAMETERS
+    self.config['DENOISE'] = DEFAULT_DENOISE_CONFIG_PARAMETERS
+    self.config['BIAS_FIELD_REMOVAL'] = DEFAULT_BIAS_FIELD_CONFIG_PARAMETERS
 
-def get_config_value(config, section, option, default):
-  value = config.get(section, option)
+    with open(self.config_file, 'w') as configfile:
+      self.config.write(configfile)
 
-  if value == '':
-    return default
-  if isinstance(default, bool):
-    return config.getboolean(section, option)
-  elif isinstance(default, int):
-    return config.getint(section, option)
-  elif isinstance(default, float):
-    return config.getfloat(section, option)
-  return value
+  def get_config_value(self, section, option, default):
+    try:
+      value = self.config.get(section, option)
+    except (configparser.NoSectionError, configparser.NoOptionError):
+      return default
+
+    if value == '':
+      return default
+    if isinstance(default, bool):
+      return self.config.getboolean(section, option)
+    elif isinstance(default, int):
+      return self.config.getint(section, option)
+    elif isinstance(default, float):
+      return self.config.getfloat(section, option)
+    return value
