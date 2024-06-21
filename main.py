@@ -28,30 +28,33 @@ def proccess_image(image_file_name, output_dir, config_manager):
   if not os.path.exists(work_image_stripped_fname) or not os.path.exists(work_image_mask_fname):
     log("> Running Image Skull Stripping")
     work_image, mask_image, time = skull_stripping(work_image)
-    log(f"> Image Skull Stripping finished (took {time:.2f}s)", bcolors.OKGREEN, True)
+    log(f"> Image Skull Stripping Finished (took {time:.2f}s)", bcolors.OKGREEN, True)
 
     save_nib_image(work_image, work_image_stripped_fname)
     save_nib_image(mask_image, work_image_mask_fname)
+  else:
+    log("> Image Skull Stripping Already Taken", bcolors.OKGREEN)
+    mask_image = load_nib_image(work_image_mask_fname)
 
   # Denoising (NIB)
   work_image_denoised_fname = file_name.get_output_fname(basenames.DENOISED)
 
-  denoising_enabled = config_manager.get_config_value('DENOISE', 'ENABLED', default=True)
-  if denoising_enabled:
+  if not os.path.exists(work_image_denoised_fname):
     log("> Running Image Denoising")
     work_image, time = denoise_image(work_image, mask_image, config_manager)
     log(f"> Image Denoising finished (took {time:.2f}s)", bcolors.OKGREEN, True)
 
     save_nib_image(work_image, work_image_denoised_fname)
+  else:
+    log("> Image Denoising Already Taken", bcolors.OKGREEN)
 
   # Bias field removal (SITK)
   work_image_biasfielded_fname = file_name.get_output_fname(basenames.BIASFIELDED)
 
-  bias_field_removal_enabled = config_manager.get_config_value('BIAS_FIELD_REMOVAL', 'ENABLED', default=True)
-  if bias_field_removal_enabled:
+  if not os.path.exists(work_image_biasfielded_fname):
     log("> Running Bias Field Removal")
 
-    work_image = load_sitk_image(work_image_mask_fname, sitk.sitkFloat32)
+    work_image = load_sitk_image(work_image_denoised_fname, sitk.sitkFloat32)
     mask_image = load_sitk_image(work_image_mask_fname, sitk.sitkUInt8)
 
     work_image, time = remove_bias_field(work_image, mask_image, config_manager)
@@ -59,6 +62,8 @@ def proccess_image(image_file_name, output_dir, config_manager):
     log(f"> Bias Field Removed (took {time:.2f}s)", bcolors.OKGREEN, True)
 
     save_sitk_image(work_image, work_image_biasfielded_fname)
+  else:
+    log("> Bias Field Already Removed", bcolors.OKGREEN)
 
 def main(input_dir, output_dir, config_path):
   # Config
