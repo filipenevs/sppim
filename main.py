@@ -88,15 +88,15 @@ if __name__ == "__main__":
     sys.exit(0)
 
   if len(sys.argv) != 3:
-    print("Usage: python main.py <MRI_PATH> <OUTPUT_DIR>")
+    print("Usage: python main.py <INPUT_DIR> <OUTPUT_DIR>")
     print("Or to generate a default config file: python main.py --generate-config")
     sys.exit(1)
-
-  mri_path = sys.argv[1]
-  output_dir = normalize_dir_path(sys.argv[3])
 
   if not os.path.exists(config_path):
     print(f"No configuration file found at {config_path}. Please run 'python main.py --generate-config' to create a default config file.")
     sys.exit(1)
+
+  input_dir = normalize_dir_path(sys.argv[1])
+  output_dir = normalize_dir_path(sys.argv[2])
   
-  main(mri_path, output_dir, config_path)
+  main(input_dir, output_dir, config_path)
