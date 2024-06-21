@@ -8,14 +8,16 @@ class basenames:
   
 
 class FileName:
-  def __init__(self, original_file_name, output_dir):
+  def __init__(self, original_file_name, output_dir, extensions):
     self.output_dir = output_dir
 
     file_name_with_extension = os.path.basename(original_file_name)
-    file_name, file_extension = os.path.splitext(file_name_with_extension)
 
-    self.file_name = file_name
-    self.file_extension = file_extension
+    for ext in extensions:
+      if file_name_with_extension.endswith(ext):
+        
+        self.file_name = file_name_with_extension[:-len(ext)]
+        self.file_extension = ext
 
   def get_output_fname(self, image_type):
     return f'{self.output_dir}/{self.file_name}-{image_type}{self.file_extension}'

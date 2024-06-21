@@ -14,7 +14,8 @@ from src.file_name import FileName, basenames
 def proccess_image(image_file_name, output_dir, config_manager):
   log(f"\n# {image_file_name}", bcolors.OKCYAN)
 
-  file_name = FileName(image_file_name, output_dir)
+  extensions = config_manager.get_config_value('GENERAL', 'EXTENSIONS', default=['.nii', '.nii.gz'])
+  file_name = FileName(image_file_name, output_dir, extensions)
 
   # Loading
   log("> Loading Image")
