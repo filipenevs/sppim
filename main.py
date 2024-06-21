@@ -6,65 +6,61 @@ import SimpleITK as sitk
 from src.config import ConfigManager
 from src.skull_stripping import skull_stripping
 from src.denoise import denoise_image
-from src.image_io import load_nib_image, save_nib_image, save_sitk_image, load_sitk_image, save_nib_image_to_tempfile, save_sitk_image_to_tempfile, load_itk_image, save_itk_image, save_itk_image_to_tempfile, cleanup_tempfile
+from src.image_io import load_nib_image, save_nib_image, save_sitk_image, load_sitk_image
 from src.bias_field import remove_bias_field
 from src.utils import log, bcolors, normalize_dir_path, list_files_in_directory
-from src.orientation import sync_images_orientation
+from src.file_name import FileName, basenames
 
 def proccess_image(image_file_name, output_dir, config_manager):
   log(f"\n# {image_file_name}", bcolors.OKCYAN)
 
-  file_name_with_extension = os.path.basename(image_file_name)
-  file_name, file_extension = os.path.splitext(file_name_with_extension)
+  file_name = FileName(image_file_name, output_dir)
 
-  save_stepwise = config_manager.get_config_value('GENERAL', 'SAVE_INTERMEDIATE_STEPS', default=True)
+  print(file_name.get_output_fname(basenames.STRIPPED))
 
   # Loading
   log("> Loading Image")
-  work_image = load_itk_image(image_file_name)
+  work_image = load_nib_image(image_file_name)
   log("> Image Loaded", bcolors.OKGREEN, True)
 
   # Skull Stripping (NIB)
-  temp_path_original = save_itk_image_to_tempfile(work_image)
-  work_image = load_nib_image(temp_path_original)
+  work_image_stripped_fname = file_name.get_output_fname(basenames.STRIPPED)
+  work_image_mask_fname = file_name.get_output_fname(basenames.MASK)
 
-  log("> Running Image Skull Stripping")
-  work_image, mask_image, time = skull_stripping(work_image)
-  log(f"> Image Skull Stripping finished (took {time:.2f}s)", bcolors.OKGREEN, True)
+  if not os.path.exists(work_image_stripped_fname) or not os.path.exists(work_image_mask_fname):
+    log("> Running Image Skull Stripping")
+    work_image, mask_image, time = skull_stripping(work_image)
+    log(f"> Image Skull Stripping finished (took {time:.2f}s)", bcolors.OKGREEN, True)
 
-  if save_stepwise:
-    save_nib_image(work_image, f'{output_dir}/{file_name}-1_stripped{file_extension}')
-    save_nib_image(mask_image, f'{output_dir}/{file_name}-1_mask{file_extension}')
+    save_nib_image(work_image, work_image_stripped_fname)
+    save_nib_image(mask_image, work_image_mask_fname)
 
   # Denoising (NIB)
+  work_image_denoised_fname = file_name.get_output_fname(basenames.DENOISED)
+
   denoising_enabled = config_manager.get_config_value('DENOISE', 'ENABLED', default=True)
   if denoising_enabled:
     log("> Running Image Denoising")
     work_image, time = denoise_image(work_image, mask_image, config_manager)
     log(f"> Image Denoising finished (took {time:.2f}s)", bcolors.OKGREEN, True)
 
-    if save_stepwise:
-      save_nib_image(work_image, f'{output_dir}/{file_name}-2_denoised{file_extension}')
+    save_nib_image(work_image, work_image_denoised_fname)
 
   # Bias field removal (SITK)
+  work_image_biasfielded_fname = file_name.get_output_fname(basenames.BIASFIELDED)
+
   bias_field_removal_enabled = config_manager.get_config_value('BIAS_FIELD_REMOVAL', 'ENABLED', default=True)
   if bias_field_removal_enabled:
     log("> Running Bias Field Removal")
-    temp_path_work_image = save_nib_image_to_tempfile(work_image)
-    temp_path_mask_image = save_nib_image_to_tempfile(mask_image)
 
-    work_image = load_sitk_image(temp_path_work_image, sitk.sitkFloat32)
-    mask_image = load_sitk_image(temp_path_mask_image, sitk.sitkUInt8)
+    work_image = load_sitk_image(work_image_mask_fname, sitk.sitkFloat32)
+    mask_image = load_sitk_image(work_image_mask_fname, sitk.sitkUInt8)
 
     work_image, time = remove_bias_field(work_image, mask_image, config_manager)
 
     log(f"> Bias Field Removed (took {time:.2f}s)", bcolors.OKGREEN, True)
 
-    if save_stepwise:
-      save_sitk_image(work_image, f'{output_dir}/{file_name}-3_biasfielded{file_extension}')
-
-    cleanup_tempfile(temp_path_work_image)
-    cleanup_tempfile(temp_path_mask_image)
+    save_sitk_image(work_image, work_image_biasfielded_fname)
 
 def main(input_dir, output_dir, config_path):
   # Config
