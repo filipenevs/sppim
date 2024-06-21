@@ -1,0 +1,5 @@
+SimpleITK==2.3.1
+nibabel==5.2.1
+pyrobex==0.4.3
+dipy==1.9.0
+antspyx==0.4.2
