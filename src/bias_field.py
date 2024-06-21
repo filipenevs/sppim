@@ -3,10 +3,10 @@ from time import time
 import SimpleITK as sitk
 import numpy as np
 
-def remove_bias_field(sitk_image, sitk_image_mask) -> np.ndarray:
+def remove_bias_field(sitk_image, sitk_image_mask, config_manager):
   start_time = time()
 
-  shrink_factor = 2
+  shrink_factor = config_manager.get_config_value('BIAS_FIELD_REMOVAL', 'SHRINK_FACTOR', default=2)
   input_img = sitk_image
   input_img = sitk.Cast(input_img, sitk.sitkFloat32)
 
