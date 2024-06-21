@@ -1,7 +1,6 @@
 from time import time
 
 import SimpleITK as sitk
-import numpy as np
 
 def remove_bias_field(sitk_image, sitk_image_mask, config_manager):
   start_time = time()
