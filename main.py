@@ -35,6 +35,7 @@ def proccess_image(image_file_name, output_dir, config_manager):
     save_nib_image(mask_image, work_image_mask_fname)
   else:
     log("> Image Skull Stripping Already Taken", bcolors.OKGREEN)
+    work_image = load_nib_image(work_image_stripped_fname)
     mask_image = load_nib_image(work_image_mask_fname)
 
   # Denoising (NIB)
