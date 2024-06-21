@@ -16,8 +16,6 @@ def proccess_image(image_file_name, output_dir, config_manager):
 
   file_name = FileName(image_file_name, output_dir)
 
-  print(file_name.get_output_fname(basenames.STRIPPED))
-
   # Loading
   log("> Loading Image")
   work_image = load_nib_image(image_file_name)
@@ -70,7 +68,8 @@ def main(input_dir, output_dir, config_path):
 
   # Input Files
   log("> Reading Input Directory")
-  input_images = list_files_in_directory(input_dir)
+  extensions = config_manager.get_config_value('GENERAL', 'EXTENSIONS', default=['.nii', '.nii.gz'])
+  input_images = list_files_in_directory(input_dir, extensions)
   log("> Input Directory Readed", bcolors.OKGREEN, True)
 
   for path in input_images:

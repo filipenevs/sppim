@@ -34,7 +34,7 @@ $ python3 main.py --generate-config
 
 ```py
 DEFAULT_GENERAL_CONFIG_PARAMETERS = {
-
+  'EXTENSIONS': ['.nii', '.nii.gz']
 }
 
 DEFAULT_DENOISE_CONFIG_PARAMETERS = {

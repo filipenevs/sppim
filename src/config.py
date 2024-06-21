@@ -1,7 +1,7 @@
 import configparser
 
 DEFAULT_GENERAL_CONFIG_PARAMETERS = {
-
+  'EXTENSIONS': ['.nii', '.nii.gz']
 }
 
 DEFAULT_DENOISE_CONFIG_PARAMETERS = {
