@@ -5,6 +5,15 @@ from dipy.denoise.nlmeans import nlmeans
 from dipy.denoise.noise_estimate import estimate_sigma
 import ants
 
+def normalize_image(img_data):
+  """
+  Normaliza imagem entre 0 e 1 
+  img_data: Array numpy
+  """
+  g_min = img_data.min()
+  g_max = img_data.max()
+  return (img_data - g_min) / (g_max - g_min)
+
 def extract_fdata_from_images(*nib_images):
   images_data = tuple(img.get_fdata() for img in nib_images)
   return images_data
@@ -59,10 +68,8 @@ def denoise_image(work_img, mask_image, config_manager):
   denoise_function = denoise_image_ants if use_ants else denoise_image_dipy
   denoised_data = denoise_function(image_data, mask_data, denoise_params)
 
-  denoised_image = nib.Nifti1Image(denoised_data, work_img.affine, work_img.header)
-
-   # normalized_denoised_data = normalize_image(denoised_data)
-  # denoised_image = nib.Nifti1Image(normalized_denoised_data, work_img.affine, work_img.header)
+  normalized_denoised_data = normalize_image(denoised_data)
+  denoised_image = nib.Nifti1Image(normalized_denoised_data, work_img.affine, work_img.header)
 
   processing_time = time() - start_time
 
